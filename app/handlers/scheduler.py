@@ -315,6 +315,7 @@ def build_ffpost_handler() -> ConversationHandler:
         },
         fallbacks=[CommandHandler("cancel", cancel)],
         allow_reentry=True,
+        per_chat=False,
     )
  
  
