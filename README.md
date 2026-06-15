@@ -34,5 +34,5 @@ Setup:
 3. Rode com python run.py (ou run_local.py)
 
 
-- Versão atual é a 2.1(Sour-Raspberry-Pie)
+- Versão atual é a 2.1.1(Sour-Raspberry-Pie)
 
