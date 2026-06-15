@@ -51,7 +51,7 @@ async def ffremove_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not query or not query.data:
         return
 
-    await query.answer() 
+    await query.answer()
 
     if query.data == "ffremove_cancel":
         await query.edit_message_text("Remoção cancelada.")
@@ -61,9 +61,12 @@ async def ffremove_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     source_chat_id = int(source_chat_id_str)
     source_message_id = int(source_message_id_str)
 
+    logger.info("FFRemove buscando: source_chat_id=%s source_message_id=%s", source_chat_id, source_message_id)
+
     entry = find_and_remove_post(source_chat_id, source_message_id)
     if not entry:
-        await query.edit_message_text("Evento não encontrado ou já removido.")
+        logger.warning("FFRemove: entrada não encontrada no JSON para %s:%s", source_chat_id, source_message_id)
+        await query.edit_message_text("Evento não encontrado no registro. Pode ter sido removido manualmente ou o post não passou pelo bot.")
         return
 
     try:
@@ -73,11 +76,10 @@ async def ffremove_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     except Exception:
         logger.exception("Falha ao deletar mensagem do canal %s", entry["chat_id"])
-        await query.edit_message_text("Evento removido do registro, mas não foi possível deletar a mensagem do canal. Pode ter sido deletada manualmente.")
+        await query.edit_message_text("Evento removido do registro, mas não foi possível deletar a mensagem do canal.")
         return
 
     await query.edit_message_text("Evento removido com sucesso!")
-
 
 def build_ffremove_handler(): 
     return [

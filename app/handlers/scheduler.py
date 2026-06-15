@@ -64,6 +64,7 @@ def build_google_calendar_link(title: str, event_datetime: dt) -> str:
 async def ffpost(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     chat = update.effective_chat
     message = update.message
+    user = update.effective_user
 
     if chat.type not in ("group", "supergroup"):
         await message.reply_text("/FFPost só pode ser utilizado em grupos, sowwy owo.")
@@ -96,7 +97,6 @@ async def ffpost(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
 
     # Abre a conversa na DM
-    user = update.effective_user
     await context.bot.send_message(
         chat_id=user.id,
         text=(
