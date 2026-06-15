@@ -27,7 +27,6 @@ Verifica se o bot está online e mostra a versão atual.
 - /FFPost só funcionam em grupos ou grupos de canais.
 - /FFThisMonth só pode ser usado em grupo por administradores, usuários podem chamar essa mensagem pela dm do bot.
 - Apenas administradores do grupo podem usar funções.
-- Certifique-se de que o bot tenha permissão para fixar mensagens
 
 Setup:
 1. Crie um arquivo .env com as variáveis necessárias.
