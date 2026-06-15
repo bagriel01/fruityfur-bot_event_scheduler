@@ -1,4 +1,4 @@
-💡 UPDATE 🚨-> Versão atual: 1.4L (Raspberry)
+💡 UPDATE 🚨-> Versão atual: 2,1 (Raspberry-Pie)
 
 O que mudou nessa versão do Bot?
 
@@ -7,6 +7,8 @@ Bot Core:
 
 Bug Fix:
 🤕 Arrumado o bug que fazia o bot responder o /FFThisMonth em inglês
+🤕 Arrumado bugs que afetavam o flow do /FFPost e /FFRemove
 
 Novas Features:
 ☀️ Posts de meet agora possuem botão que permite participantes a adicionar o furmeet ao seu calendário da Google com alerta e lembrete! 
+☀️ /FFPrivacy mostra as políticas de privacidade de dados do bot e do telegram. 
