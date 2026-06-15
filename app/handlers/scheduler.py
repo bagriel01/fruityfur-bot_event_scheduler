@@ -1,6 +1,7 @@
 import logging
 from urllib.parse import urlencode
 from datetime import datetime as dt
+from telegram.error import TelegramError
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     CallbackQueryHandler,
@@ -80,12 +81,10 @@ async def ffpost(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
  
     replied = message.reply_to_message
     chat_username = chat.username
-    group_link = f"https://t.me/{chat_username}" if chat_username else None
  
     # Salva contexto para usar na DM
     context.user_data["ffpost_replied_id"] = replied.message_id
     context.user_data["ffpost_chat_id"] = chat.id
-    context.user_data["ffpost_group_link"] = group_link
  
     # Avisa no grupo que vai chamar na DM
     await message.reply_text("Te chamei na DM para concluirmos a publicação do post.")
@@ -165,10 +164,6 @@ async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_
  
     chat_id = context.user_data["ffpost_chat_id"]
     replied_id = context.user_data["ffpost_replied_id"]
-    group_link = context.user_data.get("ffpost_group_link")
- 
-
-    gcal_date = event_datetime.strftime("%m/%d/%Y")
     gcal_link = build_google_calendar_link(
         title="Evento Agendado pelo FruityFur Bot",
         event_datetime=event_datetime,
@@ -210,7 +205,7 @@ async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_
                 parse_mode="Markdown",
                 reply_markup=keyboard,
             )
-        except Exception:
+        except TelegramError:
             logger.exception("Falha ao encaminhar para o aprovador %s", approver_id)
  
     await update.message.reply_text(

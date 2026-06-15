@@ -33,7 +33,7 @@ async def FFPing(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tz = pytz.timezone("America/Sao_Paulo")
     now = dt.now(tz)
     await update.message.reply_text(
-        f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 2.1L (Raspberry-Pie)"
+        f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 2.1.1 (Sour-Raspberry-Pie)"
     )
 
 
@@ -65,8 +65,9 @@ async def FFPrivacy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "� *Política de Privacidade*\n\n"
         "Este bot coleta informações mínimas para funcionar corretamente, como IDs de usuário e mensagens enviadas. As informações coletadas são utilizadas apenas para fins operacionais e não são compartilhadas com terceiros.\n\n"
-        "Ao utilizar o bot, você concorda com esta política de privacidade."
+        "Ao utilizar o bot, você concorda com esta política de privacidade. \n\n"
         "https://telegram.org/privacy/br#6-mensagens-de-bot \n\n"
+        "O Administrador do bot não se responsabiliza pelos eventos divulgados no bot, caso alguma coisa problemática aconteça em algum meet, contate o desenvolvedor em @thenightweaver."
     )
 
 
