@@ -3,13 +3,19 @@ import asyncio
 from datetime import datetime as dt
 import pytz
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, ChatMemberHandler
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+    ChatMemberHandler,
+)
 import app
 from app.config import BOT_TOKEN, WEBHOOK_URL, PORT
 from app.handlers.scheduler import build_ffpost_handler, build_approval_handler
 from app.handlers.thismonth import build_ffthismonth_handler
 from app.handlers.purge import build_purge_handler
 from app.handlers.ffremove import build_ffremove_handler
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
@@ -18,40 +24,51 @@ logger = logging.getLogger(__name__)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Boas vindas e obrigado por utilizar o FFBot! Para começar, me adicione no seu grupo e me dê as permissões de ADM (todas). Prometo não fazer nada malicioso uwu.")
+    await update.message.reply_text(
+        "Boas vindas e obrigado por utilizar o FFBot! Para começar, me adicione no seu grupo e me dê as permissões de ADM (todas). Prometo não fazer nada malicioso uwu."
+    )
 
 
 async def FFPing(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tz = pytz.timezone("America/Sao_Paulo")
     now = dt.now(tz)
-    await update.message.reply_text(f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 1.4L (Raspberry)")
+    await update.message.reply_text(
+        f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 1.4L (Raspberry)"
+    )
+
 
 async def FFHelp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-       
         "📨 */FFPost*\n"
-        "Use essa função para criar o evento.\n\n"
-        "Crie um post em seu grupo contendo as informações de evento;\n\n"
-        "Responda a mensagem do evento com /FFPost para agendar a publicação do evento pelo bot;\n\n"
-        "O bot irá solicitar a data do evento e enviará o post para ser aprovado!\n\n"
-
+        "Use essa função para agendar a publicação de um evento.\n"
+        "Existem duas formas de usar:\n\n"
+        "• Responda a mensagem do evento no grupo com /FFPost — o bot te chama na DM para concluir;\n"
+        "• Encaminhe a mensagem do evento direto para a DM do bot.\n\n"
+        "Na DM, o bot irá solicitar a data e horário do evento no formato DD/MM/AAAA \\- HH:MM e enviará o post para aprovação\\!\n\n"
         "📅 */FFThisMonth*\n"
-        "Use essa função para mostrar os eventos do mês atual publicados pelo bot.\n\n"
-
+        "Mostra os eventos do mês atual publicados pelo bot.\n\n"
         "🗑️ */FFRemove*\n"
-        "Responda a mensagem original do evento com este comando para removê-lo do canal e do registro.\n\n"
-
-        "⛔ */cancel*\n"
-        "Cancela a função de criação de evento.\n\n"
-
+        "Responda a mensagem original do evento com este comando para removê\\-lo do canal e do registro.\n\n"
+        "⛔️ */cancel*\n"
+        "Cancela a operação em andamento.\n\n"
         "🏓 */FFPing*\n"
         "Verifica se o bot está online e mostra a versão atual.\n\n"
+        "🔐 */FFPrivacy*\n"
+        "Mostra a política de privacidade do bot.\n\n"
+        "⚠️ *Notas:*\n"
+        "• /FFPost só funciona em grupos — ou via encaminhamento direto na DM do bot.\n"
+        "• /FFThisMonth pode ser usado por administradores no grupo ou por qualquer usuário na DM do bot.\n"
+        "• Apenas administradores do grupo podem usar as funções no grupo.\n"
+    )
 
-        "⚠️ Notas: \n"
-        "- /FFPost só funcionam em grupos ou grupos de canais.\n"
-        "- /FFThisMonth só pode ser usado em grupo por administradores, usuários podem chamar essa mensagem pela dm do bot.\n"
-        "- Apenas administradores do grupo podem usar funções.\n"
-        "- Certifique-se de que o bot tenha permissão para fixar mensagens\n",)
+async def FFPrivacy(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "� *Política de Privacidade*\n\n"
+        "Este bot coleta informações mínimas para funcionar corretamente, como IDs de usuário e mensagens enviadas. As informações coletadas são utilizadas apenas para fins operacionais e não são compartilhadas com terceiros.\n\n"
+        "Ao utilizar o bot, você concorda com esta política de privacidade."
+        "https://telegram.org/privacy/br#6-mensagens-de-bot \n\n"
+    )
+
 
 async def handle_bot_added_to_group(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = update.my_chat_member
@@ -62,9 +79,10 @@ async def handle_bot_added_to_group(update: Update, context: ContextTypes.DEFAUL
     if old_status in ("left", "kicked") and new_status in ("member", "administrator"):
         await context.bot.send_message(
             chat_id=result.chat.id,
-            text="Obrigado por me adicionar ao grupo! Se tiver dúvidas de como utilizar o bot, utilize /FFHelp ou contate o desenvolvedor do " \
-            "bot em @thenightweaver."
+            text="Obrigado por me adicionar ao grupo! Se tiver dúvidas de como utilizar o bot, utilize /FFHelp ou contate o desenvolvedor do "
+            "bot em @thenightweaver.",
         )
+
 
 def main():
     if not BOT_TOKEN:
@@ -78,18 +96,20 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("FFPing", FFPing))
     app.add_handler(CommandHandler("FFHelp", FFHelp))
+    app.add_handler(CommandHandler("FFPrivacy", FFPrivacy))
     app.add_handler(build_approval_handler())
     app.add_handler(build_ffpost_handler())
     app.add_handler(build_ffthismonth_handler())
     app.add_handler(build_purge_handler())
     for handler in build_ffremove_handler():
         app.add_handler(handler)
-    app.add_handler(ChatMemberHandler(handle_bot_added_to_group, ChatMemberHandler.MY_CHAT_MEMBER))
+    app.add_handler(
+        ChatMemberHandler(handle_bot_added_to_group, ChatMemberHandler.MY_CHAT_MEMBER)
+    )
     webhook_path = f"/webhook/{BOT_TOKEN}"
     webhook_url = f"{WEBHOOK_URL}{webhook_path}"
 
     logger.info(f"Iniciando Webhook em {webhook_url}")
-
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
