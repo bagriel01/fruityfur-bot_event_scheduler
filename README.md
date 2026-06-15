@@ -34,5 +34,5 @@ Setup:
 3. Rode com python run.py (ou run_local.py)
 
 
-- Versão atual é a 1.4L(Raspberry)
+- Versão atual é a 2.1(Raspberry-Pie)
 
