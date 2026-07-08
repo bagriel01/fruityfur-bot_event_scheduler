@@ -1,6 +1,14 @@
 import json
 import os
+import logging
 from datetime import datetime as dt
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger("event_storage")
+
 
 STORAGE_FILE = "/data/event_storage.json"
 
@@ -15,25 +23,41 @@ def load_data():
         if not content:
             return {}
         return json.loads(content)  
+
 def save_data(data):
     with open(STORAGE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    logger.info(
+        "save_data: arquivo gravado com sucesso (%d ano(s) no JSON)",
+        len(data)
+    )
 
 def save_post(date: dt, message_id: int, chat_id: int, source_chat_id: int, source_message_id: int):
-   year = str(date.year)
-   month = date.strftime("%m")
-   day = date.strftime("%d")
+    year = str(date.year)
+    month = date.strftime("%m")
+    day = date.strftime("%d")
+    data = load_data()
+    data.setdefault(year, {}).setdefault(month, {}).setdefault(day, [])
 
-   data = load_data()
-   data.setdefault(year, {}).setdefault(month, {}). setdefault(day, [])
-   data[year][month][day].append({
-         "chat_id": chat_id,
-         "message_id": message_id,
-         "source_chat_id": source_chat_id,
-         "source_message_id": source_message_id,
-    })
-   save_data(data)
+    entry = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "source_chat_id": source_chat_id,
+        "source_message_id": source_message_id,
+    }
+    data[year][month][day].append(entry)
 
+    logger.info(
+        "save_post: entrada adicionada em memória -> %s/%s/%s | %s",
+        year, month, day, entry
+    )
+
+    save_data(data)
+
+    logger.info(
+        "save_post: gravação concluída para %s/%s/%s (source_chat_id=%s, source_message_id=%s)",
+        year, month, day, source_chat_id, source_message_id
+    )
 def get_posts_this_month(year: int, month: int):
     data = load_data()
     month_data = data.get(str(year), {}).get(f"{month:02d}", {})

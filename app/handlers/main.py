@@ -33,7 +33,7 @@ async def FFPing(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tz = pytz.timezone("America/Sao_Paulo")
     now = dt.now(tz)
     await update.message.reply_text(
-        f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 2.1.1 (Sour-Raspberry-Pie)"
+        f"Bot está online, Data: {now.strftime('%d/%m/%Y %H:%M')} (Horário de Brasília). Versão atual do bot é 2.1.2 (Sour-Raspberry-Jam)"
     )
 
 
