@@ -1,4 +1,4 @@
-# FFBot
+# FruityFur Bot (FFBOT)
 
 | 🇧🇷 Português | 🇺🇸 English |
 |---|---|
