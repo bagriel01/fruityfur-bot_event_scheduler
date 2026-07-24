@@ -1,15 +1,19 @@
-💡 UPDATE 🚨-> Versão atual: 2.1.1 (Sour-Raspberry-Pie)
+# FFBot — Changelog
 
-O que mudou nessa versão do Bot?
+💡 **UPDATE** 🚨 → Versão atual: **3.0 (Apricot)**
 
-Bot Core:
-🔥Workflow de uso do bot alterado, agora a configuração do post será feita pela DM do bot evitando Spam de mensagens no grupo. O Administrador do meet pode utilizar /FFPost para encaminhar o post a aprovação ou encaminhar o post direto para a DM do bot. 
+| 🇧🇷 Português | 🇺🇸 English |
+|---|---|
+| **O que mudou nessa versão do Bot?** | **What changed in this version of the Bot?** |
 
-Bug Fix:
-🤕 Arrumado o bug que fazia o bot responder o /FFThisMonth em inglês
-🤕 Arrumado bugs que afetavam o flow do /FFPost e /FFRemove
-🤕 Arrumado bugs que quebrava o fluxo de uso do /FFPost via inline
+**Bot Core:**
 
-Novas Features:
-☀️ Posts de meet agora possuem botão que permite participantes a adicionar o furmeet ao seu calendário da Google com alerta e lembrete! 
-☀️ /FFPrivacy mostra as políticas de privacidade de dados do bot e do telegram. 
+| 🇧🇷 Português | 🇺🇸 English |
+|---|---|
+| 🔧 O bot foi reestruturado para que a linguagem ficasse modular, organizada em dicionários. Isso facilita a manutenção e a criação de novos idiomas para a comunidade. | 🔧 The bot was restructured so that language handling is now modular, organized into dictionaries. This makes maintenance easier and simplifies creating new languages for the community. |
+
+**Bug Fix:**
+
+| 🇧🇷 Português | 🇺🇸 English |
+|---|---|
+| 🤕 Corrigido o bug do `/FFThisMonth` que fazia o mês aparecer em inglês, um problema que persistia há trocentas versões. | 🤕 Fixed the `/FFThisMonth` bug that made the month appear in English, an issue that had persisted for buncha versions. |
