@@ -28,7 +28,7 @@ def save_data(data):
     with open(STORAGE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     logger.info(
-        "save_data: arquivo gravado com sucesso (%d ano(s) no JSON)",
+        "save_data: file written with sucess, total entries: %d",
         len(data)
     )
 
@@ -48,14 +48,14 @@ def save_post(date: dt, message_id: int, chat_id: int, source_chat_id: int, sour
     data[year][month][day].append(entry)
 
     logger.info(
-        "save_post: entrada adicionada em memória -> %s/%s/%s | %s",
+        "save_post: entry added for %s/%s/%s (source_chat_id=%s, source_message_id=%s)",
         year, month, day, entry
     )
 
     save_data(data)
 
     logger.info(
-        "save_post: gravação concluída para %s/%s/%s (source_chat_id=%s, source_message_id=%s)",
+        "save_post: recorded in %s/%s/%s (source_chat_id=%s, source_message_id=%s)",
         year, month, day, source_chat_id, source_message_id
     )
 def get_posts_this_month(year: int, month: int):

@@ -3,6 +3,8 @@ from datetime import datetime as dt
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 from app.handlers.thismonth_storage import get_posts_this_month
+from app.dicts.thismonthBR import NOT_ADMIN_MESSAGE, NO_SCHEDULED_MESSAGE, FFTHISMONTH_COMMAND #change this dict to thismonthEN to translate the bot to english. 
+from app.dicts.monthsBR import MESES #this here is needed so the months are always in portuguese, even if the server is set to english. Comment this to use the bot in english. 
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ async def ffthismonth(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if chat.type in ("group", "supergroup"):
         if not await is_user_admin(update, context):
-            await update.message.reply_text("Somente administradores podem usar /FFThisMonth, sowwy uwu")
+            await update.message.reply_text(NOT_ADMIN_MESSAGE)
             return
     thread_id = update.message.message_thread_id
 
@@ -27,12 +29,12 @@ async def ffthismonth(update: Update, context: ContextTypes.DEFAULT_TYPE):
     posts = get_posts_this_month(now.year, now.month)
 
     if not posts:
-        await update.message.reply_text("Não há eventos agendados para este mês ainda. Agende o seu com @FruityFur_Bot! :3")
+        await update.message.reply_text(NO_SCHEDULED_MESSAGE)
         return
     await context.bot.send_message(
         chat_id=chat.id,
         message_thread_id=thread_id,
-        text=f"Eventos do Mês {now.strftime('%B %Y')}:",
+        text=FFTHISMONTH_COMMAND.format(f"{MESES[now.month]} {now.year}"), #this should be changed to text=FFTHISMONTH_COMMAND.format(now.strftime("%B %Y")), for usage in english
         parse_mode="Markdown"
     )
     for day, entry in posts:

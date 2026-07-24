@@ -12,7 +12,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from app.handlers.thismonth_storage import save_post 
-
+from app.dicts.schedulerBR import FFPOST_NOTGROUP, FFPOST_NOTADMIN, FFPOST_NOREPLY, FFPOST_DM_FORWARD, FFPOST_DATETIME_PROMPT, FFPOST_DATETIME_INVALID, FFPOST_PENDING_APPROVAL, FFPOST_APPROVED, FFPOST_APPROVED_TXT, FFPOST_REJECTED, FFPOST_CANCELLED, FFPOST_REJECTED_TXT, FFPOST_CALLENDAR_BTN
 from app.config import ADMIN_USER_IDS, APPROVED_EVENT_CHANNEL_ID    
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def parse_channel_id(channel_id_str):
     if value.isdigit():
         return int(value)
     return value
-#Resolve o ID do canal para um formato aceitável
+#Resolves the channel ID from the config
 
 def get_approver_ids(update: Update) -> list[int]:
     if ADMIN_USER_IDS:
@@ -39,7 +39,7 @@ def get_approver_ids(update: Update) -> list[int]:
         return [update.effective_user.id]
 
     return []
-#Recebe o aprovador do evento via ADMIN_USER_IDS 
+#Receives the list of approvers from the config or defaults to the user who initiated the command
 
 async def is_user_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     chat = update.effective_chat
@@ -48,7 +48,7 @@ async def is_user_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> b
         return False
     administrators = await context.bot.get_chat_administrators(chat.id)
     return any (member.user and member.user.id == user.id for member in administrators)
-#Valida se o usuário é administrador do grupo
+#Validades if the user is an admin in the group where the command was issued
 
 def build_google_calendar_link(title: str, event_datetime: dt) -> str:
     start = event_datetime.strftime("%Y%m%dT%H%M%S")
@@ -58,7 +58,7 @@ def build_google_calendar_link(title: str, event_datetime: dt) -> str:
         "dates": f"{start}/{start}",
     }
     return f"https://www.google.com/calendar/render?{urlencode(params)}"
-#Constroi o formato do link do google calendar para o evento
+#Builds the Google Calendar link format for the event
 #/endHelpers
 
 
@@ -68,26 +68,26 @@ async def ffpost(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.effective_user
 
     if chat.type not in ("group", "supergroup"):
-        await message.reply_text("/FFPost só pode ser utilizado em grupos, sowwy owo.")
+        await message.reply_text(FFPOST_NOTGROUP)
         return ConversationHandler.END
  
     if not await is_user_admin(update, context):
-        await message.reply_text("Somente administradores podem usar /FFPost, sowwy uwu.")
+        await message.reply_text(FFPOST_NOTADMIN)
         return ConversationHandler.END
  
     if not message.reply_to_message:
-        await message.reply_text("Oops, você precisa responder a uma mensagem para usar /FFPost! Tente novamente owo.")
+        await message.reply_text(FFPOST_NOREPLY)
         return ConversationHandler.END
  
     replied = message.reply_to_message
     chat_username = chat.username
  
-    # Salva contexto para usar na DM
+    
     context.user_data["ffpost_replied_id"] = replied.message_id
     context.user_data["ffpost_chat_id"] = chat.id
  
-    # Avisa no grupo que vai chamar na DM
-    await message.reply_text("Te chamei na DM para concluirmos a publicação do post.")
+
+    await message.reply_text(FFPOST_DM_FORWARD)
  
     await context.bot.forward_message(
         chat_id=user.id,
@@ -95,14 +95,10 @@ async def ffpost(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         message_id=replied.message_id,
     )
 
-    # Abre a conversa na DM
     await context.bot.send_message(
         chat_id=user.id,
         text=(
-            "Respondendo o post encaminhado, digite a data e hora do seu evento "
-            "no seguinte formato:\n\n"
-            "*DIA/MÊS/ANO - HORA:MINUTO*\n"
-            "_(exemplo: 01/01/2026 - 13:00)_"
+            FFPOST_DATETIME_PROMPT
         ),
         parse_mode="Markdown",
     )
@@ -127,7 +123,7 @@ async def ffpost_dm_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if hasattr(origin, "chat"):          # MessageOriginChannel / MessageOriginChat
         forward_chat = origin.chat.id
         forward_message_id = getattr(origin, "message_id", None)
-    elif hasattr(origin, "sender_chat"): # MessageOriginHiddenUser com sender_chat
+    elif hasattr(origin, "sender_chat"): # MessageOriginHiddenUser with sender_chat
         forward_chat = origin.sender_chat.id
  
     context.user_data["ffpost_replied_id"] = forward_message_id or message.message_id
@@ -136,10 +132,7 @@ async def ffpost_dm_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     context.user_data["ffpost_group_link"] = None
  
     await message.reply_text(
-        "Respondendo o post encaminhado, digite a data e hora do seu evento "
-        "no seguinte formato:\n\n"
-        "*DIA/MÊS/ANO - HORA:MINUTO*\n"
-        "_(exemplo: 01/01/2026 - 13:00)_",
+        FFPOST_DATETIME_PROMPT,
         parse_mode="Markdown",
     )
  
@@ -150,14 +143,12 @@ async def ffpost_dm_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     raw = update.message.text.strip()
  
-    # Valida e faz o parse do formato DD/MM/YYYY - HH:MM
+    #Validates and parse the date format
     try:
         event_datetime = dt.strptime(raw, "%d/%m/%Y - %H:%M")
     except ValueError:
         await update.message.reply_text(
-            "Formato inválido. Por favor use *DIA/MÊS/ANO - HORA:MINUTO*\n"
-            "_(exemplo: 01/01/2026 - 13:00)_\n\n"
-            "Tente novamente:",
+            FFPOST_DATETIME_INVALID,
             parse_mode="Markdown",
         )
         return FFPOST_DATETIME
@@ -184,8 +175,8 @@ async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_
 
     approver_ids = get_approver_ids(update)
     keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("✅ Aprovar", callback_data=f"approve:{request_id}"),
-        InlineKeyboardButton("❌ Rejeitar", callback_data=f"reject:{request_id}"),
+        InlineKeyboardButton("✅ ", callback_data=f"approve:{request_id}"),
+        InlineKeyboardButton("❌ ", callback_data=f"reject:{request_id}"),
     ]])
  
     for approver_id in approver_ids:
@@ -198,9 +189,8 @@ async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_
             await context.bot.send_message(
                 chat_id=approver_id,
                 text=(
-                    f"📋 *Novo evento para aprovação*\n"
-                    f"📆 Data: {event_datetime.strftime('%d/%m/%Y às %H:%M')}\n\n"
-                    "Aprovar ou rejeitar este evento?"
+                    f"📆 Event: {event_datetime.strftime('%d/%m/%Y às %H:%M')}\n\n"
+                    
                 ),
                 parse_mode="Markdown",
                 reply_markup=keyboard,
@@ -209,7 +199,7 @@ async def ffpost_receive_datetime(update: Update, context: ContextTypes.DEFAULT_
             logger.exception("Falha ao encaminhar para o aprovador %s", approver_id)
  
     await update.message.reply_text(
-        "✅ Obrigado! O aprovador irá revisar o post e aprovar ou recusar o evento em breve.",
+        FFPOST_PENDING_APPROVAL,
     )
  
     context.user_data.clear()
@@ -227,7 +217,7 @@ async def handle_approval_callback(update: Update, context: ContextTypes.DEFAULT
     approval = pending.get(request_id)
  
     if not approval:
-        await query.edit_message_text("Esse request não está mais disponível.")
+        await query.edit_message_text("Request Expired.")
         return
  
     if action == "approve":
@@ -244,10 +234,10 @@ async def handle_approval_callback(update: Update, context: ContextTypes.DEFAULT
                 message_id=message_id,
             )
  
-            #Botão do Google callendar
+            #google calendar button
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    text="📅 Quero participar do evento",
+                    text=FFPOST_CALLENDAR_BTN,
                     url=gcal_link,
                 )
             ]])
@@ -258,7 +248,7 @@ async def handle_approval_callback(update: Update, context: ContextTypes.DEFAULT
                 reply_markup=keyboard,
             )
  
-            # Salva no JSON para o /FFThisMonth
+            # Saves the post to the storage for /FFThisMonth command
             save_post(
                 date=event_datetime,
                 message_id=forwarded.message_id,
@@ -267,34 +257,34 @@ async def handle_approval_callback(update: Update, context: ContextTypes.DEFAULT
                 source_message_id=message_id,
             )
  
-        await query.edit_message_text("✅ Evento aprovado e publicado no canal!")
+        await query.edit_message_text(FFPOST_APPROVED)
  
         await context.bot.send_message(
             chat_id=group_chat_id,
-            text="Sucesso! Este evento foi aprovado e postado no canal https://t.me/FruityFur_Events! Cheque seu post lá!",
+            text=FFPOST_APPROVED_TXT,
             reply_to_message_id=message_id,
         )
  
     else:
-        #Rejeição: avisa no privado do submitter
+        #rejected, notifying the submitter
         submitter_id = approval.get("submitter_id")
         if submitter_id:
             await context.bot.send_message(
                 chat_id=submitter_id,
-                text="Seu post não foi aprovado, por favor entre em contato com o desenvolvedor do bot em @thenightweaver para mais informações.",
+                text=FFPOST_REJECTED_TXT,
             )
  
-        await query.edit_message_text("❌ Evento rejeitado.")
+        await query.edit_message_text(FFPOST_REJECTED)
  
     pending.pop(request_id, None)
  
  
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data.clear()
-    await update.message.reply_text("Operação cancelada.")
+    await update.message.reply_text(FFPOST_CANCELLED)
     return ConversationHandler.END
  
-#builders que serão exportados para o main.py
+#builders that will be exported to main.py to be added to the application
 
 
 def build_ffpost_handler() -> ConversationHandler:
