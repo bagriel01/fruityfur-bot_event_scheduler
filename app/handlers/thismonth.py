@@ -26,7 +26,7 @@ async def ffthismonth(update: Update, context: ContextTypes.DEFAULT_TYPE):
     thread_id = update.message.message_thread_id
 
     now = dt.now()
-    posts = get_posts_this_month(now.year, now.month)
+    posts = get_posts_this_month(now.year, now.month, min_day=now.day)
 
     if not posts:
         await update.message.reply_text(NO_SCHEDULED_MESSAGE)

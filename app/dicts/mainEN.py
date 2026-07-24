@@ -5,7 +5,7 @@ Welcome and thank you for using FFBot! To get started, add me to your group and 
 PING = """
 Bot is online.
 Date: {}
-Current bot version: 3.0 (Apricot)
+Current bot version: 3.1 (Apricot-Jam)
 """
 
 HELP = """

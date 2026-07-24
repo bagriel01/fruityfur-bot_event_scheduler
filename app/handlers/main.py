@@ -15,7 +15,7 @@ from app.handlers.scheduler import build_ffpost_handler, build_approval_handler
 from app.handlers.thismonth import build_ffthismonth_handler
 from app.handlers.purge import build_purge_handler
 from app.handlers.ffremove import build_ffremove_handler
-from app.dicts.mainBR import START, PING, HELP, PRIVACY, HANDLER_ADD_TO_GROUP   
+from app.dicts.mainBR import START, PING, HELP, PRIVACY, HANDLER_ADD_TO_GROUP   #change this dict to mainEN to translate the bot to english. 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
