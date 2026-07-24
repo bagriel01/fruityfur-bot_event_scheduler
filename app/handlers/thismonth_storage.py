@@ -58,7 +58,7 @@ def save_post(date: dt, message_id: int, chat_id: int, source_chat_id: int, sour
         "save_post: recorded in %s/%s/%s (source_chat_id=%s, source_message_id=%s)",
         year, month, day, source_chat_id, source_message_id
     )
-def get_posts_this_month(year: int, month: int):
+def get_posts_this_month(year: int, month: int, min_day: int = None):
     data = load_data()
     month_data = data.get(str(year), {}).get(f"{month:02d}", {})
 
@@ -66,6 +66,7 @@ def get_posts_this_month(year: int, month: int):
         (day, entry)
         for day, entries in month_data.items()
         for entry in month_data[day]
+        if min_day is None or int(day) >= min_day
     ]
 def find_and_remove_post(source_chat_id: int, source_message_id: int):
     data = load_data()
