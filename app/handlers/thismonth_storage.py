@@ -27,11 +27,7 @@ def load_data():
 def save_data(data):
     with open(STORAGE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    logger.info(
-        "save_data: file written with sucess, total entries: %d",
-        len(data)
-    )
-
+    
 def save_post(date: dt, message_id: int, chat_id: int, source_chat_id: int, source_message_id: int):
     year = str(date.year)
     month = date.strftime("%m")
